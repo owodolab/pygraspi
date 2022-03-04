@@ -23,8 +23,9 @@ in
     pname = "pygraspi-env";
     buildInputs = with pypkgs; [
       pymks
-#      graspi
-#      jupyter
+      graspi
+      jupyter
+      scikitimage
     ];
 
     shellHook = ''
