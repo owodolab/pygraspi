@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Dask files
+domain.vtk
+notebooks/dask-report.html
+notebooks/dask-worker-space
+notebooks/mydask.png
