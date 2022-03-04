@@ -4,7 +4,7 @@
 #
 
 {
-  tag ? "21.11",
+  tag ? "21.05",
   graspiVersion ? "59f6a8a2e1ca7c8744a4e37701b919131efb2f45",
   pymksVersion ? "5aeb56c9faff8a655136747faa744b81d9549e3d"
 }:
@@ -21,10 +21,10 @@ let
 in
   pkgs.mkShell rec {
     pname = "pygraspi-env";
-    nativeBuildInputs = with pypkgs; [
+    buildInputs = with pypkgs; [
       pymks
-      graspi
-      jupyter
+#      graspi
+#      jupyter
     ];
 
     shellHook = ''
