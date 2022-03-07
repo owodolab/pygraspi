@@ -26,6 +26,7 @@ in
       graspi
       jupyter
       scikitimage
+      pip
     ];
 
     shellHook = ''
@@ -42,5 +43,7 @@ in
       pip install jupyter_contrib_nbextensions --user > /dev/null 2>&1
       jupyter contrib nbextension install --user > /dev/null 2>&1
       jupyter nbextension enable spellchecker/main > /dev/null 2>&1
+
+      pip install --user pyobjc-framework-Cocoa==7.3 send2trash==1.7.0a1
   '';
  }
