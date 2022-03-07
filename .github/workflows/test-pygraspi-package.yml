@@ -2,7 +2,7 @@ name: Test PFHub Package
 on: [push, pull_request]
 jobs:
   pygraspi-nix-test:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     defaults:
       run:
         working-directory: .
