@@ -133,3 +133,5 @@ domain.vtk
 notebooks/dask-report.html
 notebooks/dask-worker-space
 notebooks/mydask.png
+
+.local
