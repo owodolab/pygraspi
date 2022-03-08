@@ -4,7 +4,7 @@
 #
 
 {
-  tag ? "21.11",
+  tag ? "22.05-pre",
   graspiVersion ? "59f6a8a2e1ca7c8744a4e37701b919131efb2f45",
   pymksVersion ? "5aeb56c9faff8a655136747faa744b81d9549e3d"
 }:
@@ -44,6 +44,6 @@ in
       jupyter contrib nbextension install --user > /dev/null 2>&1
       jupyter nbextension enable spellchecker/main > /dev/null 2>&1
 
-      pip install --user pyobjc-framework-Cocoa==7.3 send2trash==1.7.0a1
+
   '';
  }
