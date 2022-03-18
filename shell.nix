@@ -24,7 +24,7 @@ in
     buildInputs = with pypkgs; [
       pymks
       graspi
-      jupyter
+#      jupyter
       scikitimage
       pip
     ];

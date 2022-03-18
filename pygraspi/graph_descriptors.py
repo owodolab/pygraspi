@@ -1,67 +1,13 @@
 import numpy as np
 import networkx as nx
 import doctest
+from makeGridGraph import make_grid_graph
 
-
-def make_edges(nx, ny):
-    ids_ = np.arange(nx * ny ).reshape(nx, ny)
-    ids = -np.ones((nx + 2, ny + 2), dtype=int)
-    ids[1:-1, 1:-1] = ids_
-    neigbors = np.zeros((nx, ny, 8), dtype=int)
-    print(ids)
-    neighbors[:, :, 0] = ids[2:, 1:-1] # right
-    neighbors[:, :, 1] = ids[2:, 2:] # upper right
-    neighbors[:, :, 2] = ids[1:-1, 2:] # up
-    neighbors[:, :, 3] = ids[:-2, 2:] # upper left
-    neighbors[:, :, 4] = ids[:-2, 1:-1] # left
-    neighbors[:, :, 5] = ids[:-2, :-2] # lower left
-    neighbors[:, :, 6] = ids[1:-1, :-2] # down
-    neighbors[:, :, 7] = ids[2:, :-2] # lower right
-
-    neighbors = neighbors.reshape(nx * ny, 8)
-
-    return neighbors
-
-print(make_edges(3, 2))
-
-def getNeighborhood1D(dim_x, dim_y):
-    vertex_list = np.array(range(dim_x * dim_y))
-    #neighborhood = np.zeros([vertex_list.shape[0], 8])
-
-    neighborhood = np.array([[p-dim_x, (p-dim_x) + 1, p + 1, p + dim_x + 1, p + dim_x,
-                             (p+dim_x) - 1, p - 1, (p - dim_x) - 1 ] for p in vertex_list])
-    neighborhood[::dim_x, [5, 6, 7]] = -1
-    neighborhood[dim_x-1::dim_x, [1, 2, 3]] = -1
-    neighborhood[0, [0, 1, 5, 6, 7]] = -1
-    neighborhood[dim_x-1, [0, 1, 2, 3, 7]] = -1
-    neighborhood[dim_x * (dim_y -1), [3, 4, 5, 6, 7]] = -1
-    neighborhood[-1, [1, 2, 3, 4, 5]] = -1
-    neighborhood[0:dim_x, [0, 1, 7]] = -1
-    neighborhood[dim_x * (dim_y -1):, [3, 4, 5]] = -1
-
-    return neighborhood
 
 def graphConstruction(morph):
-
-    dim_x, dim_y = morph.shape
-    vertex_list = range(dim_x*dim_y)
-    G = nx.Graph()
-    #vertex_colors = input_morph.flatten()
-    G.add_nodes_from(vertex_list)
-
-    neighborhood = getNeighborhood1D(dim_x, dim_y)
-    edge_list = []
-    for i in (vertex_list):
-        for n in neighborhood[i, :]:
-            if n == -1: continue
-            e = sorted([i, n])
-            if e not in edge_list:
-                edge_list.append(e)
-
-    G.add_edges_from(edge_list)
-
+    m, n = morph.shape
+    G = nx.grid_2d_graph(m, n, periodic=False, create_using=None)
     return G
-
 
 def numberofEdges(G):
     """
@@ -69,18 +15,88 @@ def numberofEdges(G):
                 [0,1,0],\
                 [0,1,0]])
     >>> G = graphConstruction(data)
-    >>> assert(numberofEdges(G) == 20)
+    >>> assert(numberofEdges(G) == 12)
     """
     return G.number_of_edges()
 
-def numberofNodes(G):
+def numberofVertices(G):
     """
     >>> data = np.array([[0,1,0],\
                 [0,1,0],\
                 [0,1,0]])
     >>> G = graphConstruction(data)
-    >>> assert(numberofNodes(G) == 9)
+    >>> assert(numberofVertices(G) == 9)
     """
     return G.number_of_nodes()
 
-#doctest.testmod()
+def setPhaseAttributes(G, morph):
+    mapping={(i,j):morph[i][j] for i in range(0,morph.shape[0]) for j in range(0,morph.shape[1])}
+    nx.set_node_attributes(G, mapping, name="color")
+
+    return G
+
+
+def numberofPhaseVertices(G, phase):
+    """
+    >>> data = np.array([[0, 1], [0, 1]])
+    >>> G = graphConstruction(data)
+    >>> G = add_phaseAttributes(G, data)
+    >>> assert(numberofPhaseVertices(G, 0) == 2)
+    """
+    phases = nx.get_node_attributes(G, "color")
+    phase_list = list(phases.values())
+    return phase_list.count(phase)
+
+def add_phaseAttributes(G, morph):
+    mapping={(i,j):morph[i][j] for i in range(0,morph.shape[0]) for j in range(0,morph.shape[1])}
+    nx.set_node_attributes(G, mapping, name="color")
+    return G
+
+def node_phaseA(n, G):
+    nodes = G.nodes
+    return nodes[n]['color'] == 0
+
+def node_phaseB(n, G):
+    nodes = G.nodes
+    return nodes[n]['color'] == 1
+
+def getInterfaceEdges(G):
+    """
+    >>> data = np.array([[0, 1], [0, 1]])
+    >>> G = graphConstruction(data)
+    >>> G = add_phaseAttributes(G, data)
+    >>> G.add_edge((0,0), (1, 1))
+    >>> G.add_edge((0,1), (1, 0))
+    >>> assert(len(getInterfaceEdges(G)) == 4)
+    """
+    interface = [(n, u) for n, u in G.edges()
+    if (node_phaseA(n, G) and node_phaseB(u, G))
+        or (node_phaseB(n, G) and node_phaseA(u, G))
+    ]
+    return interface
+
+def getConnectedComponents(G, phase):
+    """
+    >>> data = np.array([[0, 1], [0, 1]])
+    >>> G = graphConstruction(data)
+    >>> G = add_phaseAttributes(G, data)
+    >>> G.add_edge((0,0), (1, 1))
+    >>> G.add_edge((0,1), (1, 0))
+    >>> assert(getConnectedComponents(G, 0) == 1)
+    """
+    nodes = (
+    node
+    for node, data
+    in G.nodes(data=True)
+    if data.get("color") == phase
+    )
+    subgraph = G.subgraph(nodes)
+    subgraph.nodes
+    return nx.number_connected_components(subgraph)
+
+def graph_example(nx, ny, nz):
+    """
+    >>> g = graph_example(3, 3, 2)
+    >>> assert(g.number_of_edges() == 89)
+    """
+    return make_grid_graph((nx, ny, nz))
