@@ -23,59 +23,54 @@ def skeletonize(morph):
     skel, distance = medial_axis(morph, return_distance=True)
     return skel
 
-def lengthofSkeleton(skeleton):
+def skeletal_len(skeleton):
     return (np.count_nonzero(skeleton))
 
-def numberofEnds(skeleton):
-    neighbors = (neighborhood(skeleton.shape[0], skeleton.shape[1])).flatten()
-    skeleton_1D = skeleton.tolist()
-    neighbors = neighbors[neighbors!=-1]
-    return sum(skeleton_1D[neighbors])
 
-def fractionSkeletalPixels(skeleton):
+def f_skeletal_pixels(skeleton):
     """
     >>> data = np.array([[1,1,1],\
                 [1,1,1],\
                 [1,1,1]])
     >>> skeleton = skeletonize(data)
-    >>> assert(fractionSkeletalPixels(skeleton) == 0.44)
+    >>> assert(f_skeletal_pixels(skeleton) == 0.44)
     """
     count = np.count_nonzero(skeleton)
     return round(count/skeleton.size, 2)
 
-def branchDescriptors(skeleton):
+def branch_descriptors(skeleton):
     branch_data = summarize(Skeleton(skeleton))
     return branch_data
 
-def numberofBranches(branch_data):
+def count_branch(branch_data):
     """
     >>> data = np.array([[1,1,1],\
                 [1,1,1],\
                 [1,1,1]])
     >>> skeleton = skeletonize(data)
-    >>> branch = branchDescriptors(skeleton)
-    >>> assert(numberofBranches(branch) == 1)
+    >>> branch = branch_descriptors(skeleton)
+    >>> assert(count_branch(branch) == 1)
     """
     return branch_data.shape[0]
 
-def avgBranchLen(branch_data):
+def branch_len(branch_data):
     """
     >>> data = np.array([[1,1,1],\
                 [1,1,1],\
                 [1,1,1]])
     >>> skeleton = skeletonize(data)
-    >>> branch = branchDescriptors(skeleton)
-    >>> assert(avgBranchLen(branch) == 3.41)
+    >>> branch = branch_descriptors(skeleton)
+    >>> assert(branch_len(branch) == 3.41)
     """
     return round(branch_data["branch-distance"].mean(), 2)
 
-def getJunctionData(skeleton):
+def count_junctions(skeleton):
     """
     >>> data = np.array([[1,1,1],\
                 [1,1,1],\
                 [1,1,1]])
     >>> skeleton = skeletonize(data)
-    >>> assert(getJunctionData(skeleton) == 0)
+    >>> assert(count_junctions(skeleton) == 0)
     """
     graph = sknw.build_sknw(skeleton)
     neighbors = []
@@ -88,13 +83,13 @@ def getJunctionData(skeleton):
     return J
 
 
-def getEndData(skeleton):
+def count_ends(skeleton):
     """
     >>> data = np.array([[1,1,1],\
                 [1,1,1],\
                 [1,1,1]])
     >>> skeleton = skeletonize(data)
-    >>> assert(getEndData(skeleton) == 2)
+    >>> assert(count_ends(skeleton) == 2)
     """
     graph = sknw.build_sknw(skeleton)
     neighbors = []
@@ -105,5 +100,3 @@ def getEndData(skeleton):
         neighbors.append(c)
     E = len([i for i in neighbors if i == 1])
     return E
-
-doctest.testmod()

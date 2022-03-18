@@ -1,6 +1,7 @@
 import numpy as np
 import networkx as nx
 import doctest
+from makeGridGraph import make_grid_graph
 
 
 def graphConstruction(morph):
@@ -92,3 +93,7 @@ def getConnectedComponents(G, phase):
     subgraph = G.subgraph(nodes)
     subgraph.nodes
     return nx.number_connected_components(subgraph)
+
+def graph_example(nx, ny, nz):
+    
+    return make_grid_graph((nx, ny, nz))
