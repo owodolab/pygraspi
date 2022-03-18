@@ -2,6 +2,8 @@ import numpy as np
 import doctest
 from skimage.morphology import medial_axis, skeletonize
 from skan import Skeleton, summarize
+import sknw
+
 
 def neighborhood(nx, ny):
     vertex_list = np.array(range(nx * ny))
@@ -66,3 +68,42 @@ def avgBranchLen(branch_data):
     >>> assert(avgBranchLen(branch) == 3.41)
     """
     return round(branch_data["branch-distance"].mean(), 2)
+
+def getJunctionData(skeleton):
+    """
+    >>> data = np.array([[1,1,1],\
+                [1,1,1],\
+                [1,1,1]])
+    >>> skeleton = skeletonize(data)
+    >>> assert(getJunctionData(skeleton) == 0)
+    """
+    graph = sknw.build_sknw(skeleton)
+    neighbors = []
+    for x in graph.nodes():
+        c = 0
+        for n in graph.neighbors(x):
+            c += 1
+        neighbors.append(c)
+    J = len([i for i in neighbors if i > 1])
+    return J
+
+
+def getEndData(skeleton):
+    """
+    >>> data = np.array([[1,1,1],\
+                [1,1,1],\
+                [1,1,1]])
+    >>> skeleton = skeletonize(data)
+    >>> assert(getEndData(skeleton) == 2)
+    """
+    graph = sknw.build_sknw(skeleton)
+    neighbors = []
+    for x in graph.nodes():
+        c = 0
+        for n in graph.neighbors(x):
+            c += 1
+        neighbors.append(c)
+    E = len([i for i in neighbors if i == 1])
+    return E
+
+doctest.testmod()
