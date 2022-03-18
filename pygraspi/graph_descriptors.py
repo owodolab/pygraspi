@@ -95,5 +95,8 @@ def getConnectedComponents(G, phase):
     return nx.number_connected_components(subgraph)
 
 def graph_example(nx, ny, nz):
-    
+    """
+    >>> g = graph_example(3, 3, 2)
+    >>> assert(g.number_of_edges() == 89)
+    """
     return make_grid_graph((nx, ny, nz))
