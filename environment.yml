@@ -1,0 +1,12 @@
+name: pygraspi
+channels:
+  - conda-forge
+dependencies:
+  - python=3
+  - pytest
+  - numpy
+  - networkx
+  - toolz
+  - scikit-image
+  - skan
+  - numba

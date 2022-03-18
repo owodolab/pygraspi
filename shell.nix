@@ -18,15 +18,40 @@ let
   extra = with pypkgs; [ black pylint flake8 ipywidgets ];
   graspisrc = builtins.fetchTarball "https://github.com/owodolab/graspi/archive/${graspiVersion}.tar.gz";
   graspi = pypkgs.callPackage "${graspisrc}/default.nix" {};
+  pygraspi = pypkgs.callPackage ./default.nix { skan=skan; sknw=sknw; };
+  skan = pypkgs.buildPythonPackage rec {
+    pname = "skan";
+    version = "0.10.0";
+
+    src = pypkgs.fetchPypi {
+      inherit pname version;
+      sha256 = "sha256-YFVIc+kRXjuOIhIFFNHJzvRfVmAZPEVUAfGXsNplKlk=";
+    };
+
+    propagatedBuildInputs = with pypkgs; [ matplotlib scipy pandas networkx toolz imageio numpydoc tqdm numba scikitimage ];
+
+  };
+  sknw = pypkgs.buildPythonPackage rec {
+    pname = "sknw";
+    version = "0.14";
+
+    src = pypkgs.fetchPypi {
+      inherit pname version;
+      sha256 = "sha256-kFwOVaRdlruSL+Eg2sxRbyljL12UyYJzUZq5CC/Cw9k=";
+    };
+
+    propagatedBuildInputs = with pypkgs; [ numba networkx ];
+
+  };
+
 in
-  pkgs.mkShell rec {
-    pname = "pygraspi-env";
-    buildInputs = with pypkgs; [
+ (pygraspi.overridePythonAttrs (old: rec {
+
+    propagatedBuildInputs = old.propagatedBuildInputs;
+
+    nativeBuildInputs = with pypkgs; propagatedBuildInputs ++ [
       pymks
-      graspi
-#      jupyter
-      scikitimage
-      pip
+      pygraspi
     ];
 
     shellHook = ''
@@ -45,5 +70,6 @@ in
       jupyter nbextension enable spellchecker/main > /dev/null 2>&1
 
 
+#      pip install --user sknw
   '';
- }
+  }))
