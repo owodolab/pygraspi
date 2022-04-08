@@ -10,7 +10,7 @@ def setup_args():
     return dict(
         packages=find_packages(),
         data_files=["setup.cfg"],
-        version='0.1',
+        version="0.1",
     )
 
 

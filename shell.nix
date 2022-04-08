@@ -15,7 +15,7 @@ let
   pymks = pypkgs.callPackage "${pymkssrc}/default.nix" {
     graspi=graspi;
   };
-  extra = with pypkgs; [ black pylint flake8 ipywidgets ];
+  extra = with pypkgs; [ black pylint flake8 ];
   graspisrc = builtins.fetchTarball "https://github.com/owodolab/graspi/archive/${graspiVersion}.tar.gz";
   graspi = pypkgs.callPackage "${graspisrc}/default.nix" {};
   pygraspi = pypkgs.callPackage ./default.nix { skan=skan; sknw=sknw; };
@@ -52,7 +52,7 @@ in
     nativeBuildInputs = with pypkgs; propagatedBuildInputs ++ [
       pymks
       pygraspi
-    ];
+    ] ++ extra;
 
     shellHook = ''
       export OMPI_MCA_plm_rsh_agent=${pkgs.openssh}/bin/ssh
