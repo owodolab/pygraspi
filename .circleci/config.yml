@@ -1,8 +1,0 @@
-version: 2.1
-jobs:
-  build:
-    macos:
-      xcode: 12.5.1 # indicate your selected version of Xcode
-    steps:
-      - checkout # check out the code in the project directory
-      - run: echo "hello world" # run the `echo` command
