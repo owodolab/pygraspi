@@ -5,7 +5,6 @@
 , numpy
 , networkx
 , scikitimage
-, skan
 , sknw
 }:
 
@@ -19,7 +18,6 @@ buildPythonPackage rec {
     numpy
     networkx
     scikitimage
-    skan
     sknw
   ];
 
@@ -29,7 +27,6 @@ buildPythonPackage rec {
     pytest
   '';
   # checkInputs = [ pytestCheckHook ];
-
 
   pythonImportsCheck = ["pygraspi"];
 
