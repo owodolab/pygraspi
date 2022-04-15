@@ -4,7 +4,6 @@ from skimage.morphology import medial_axis, skeletonize
 import sknw
 
 
-
 def neighborhood(nx, ny):
     vertex_list = np.array(range(nx * ny))
     # neighborhood = np.zeros([vertex_list.shape[0], 8])
@@ -24,7 +23,6 @@ def skeletonize(morph):
     return skel, distance
 
 
-
 def skeletal_len(skeleton):
     return np.count_nonzero(skeleton)
 
@@ -40,9 +38,11 @@ def f_skeletal_pixels(skeleton):
     count = np.count_nonzero(skeleton)
     return round(count / skeleton.size, 2)
 
+
 def getSkeletalGraph(skeleton):
     graph = sknw.build_sknw(skeleton)
     return graph
+
 
 def getEndJunction(graph):
     """

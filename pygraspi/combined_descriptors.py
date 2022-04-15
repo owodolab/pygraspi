@@ -37,5 +37,5 @@ def make_descriptors(data):
         data,
         fmap(getSkeletalDescriptors),
         list,
-        lambda x: pd.DataFrame(x, columns=sorted(x[0].keys()))
+        lambda x: pd.DataFrame(x, columns=sorted(x[0].keys())),
     )
