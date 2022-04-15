@@ -75,14 +75,14 @@ def node_phaseB(n, G):
     return nodes[n]["color"] == 1
 
 
-def getInterfaceEdges(G):
+def makeInterfaceEdges(G):
     """
     >>> data = np.array([[0, 1], [0, 1]])
     >>> G = graphConstruction(data)
     >>> G = add_phaseAttributes(G, data)
     >>> G.add_edge((0,0), (1, 1))
     >>> G.add_edge((0,1), (1, 0))
-    >>> assert(len(getInterfaceEdges(G)) == 4)
+    >>> assert(len(makeInterfaceEdges(G)) == 4)
     """
     interface = [
         (n, u)
@@ -93,14 +93,14 @@ def getInterfaceEdges(G):
     return interface
 
 
-def getConnectedComponents(G, phase):
+def makeConnectedComponents(G, phase):
     """
     >>> data = np.array([[0, 1], [0, 1]])
     >>> G = graphConstruction(data)
     >>> G = add_phaseAttributes(G, data)
     >>> G.add_edge((0,0), (1, 1))
     >>> G.add_edge((0,1), (1, 0))
-    >>> assert(getConnectedComponents(G, 0) == 1)
+    >>> assert(makeConnectedComponents(G, 0) == 1)
     """
     nodes = (node for node, data in G.nodes(data=True) if data.get("color") == phase)
     subgraph = G.subgraph(nodes)
