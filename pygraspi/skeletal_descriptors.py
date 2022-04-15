@@ -44,32 +44,7 @@ def getSkeletalGraph(skeleton):
     graph = sknw.build_sknw(skeleton)
     return graph
 
-
-def count_branch(branch_data):
-    """
-    >>> data = np.array([[1,1,1],\
-                [1,1,1],\
-                [1,1,1]])
-    >>> skeleton = skeletonize(data)
-    >>> branch = branch_descriptors(skeleton)
-    >>> assert(count_branch(branch) == 1)
-    """
-    return branch_data.shape[0]
-
-
-def branch_len(branch_data):
-    """
-    >>> data = np.array([[1,1,1],\
-                [1,1,1],\
-                [1,1,1]])
-    >>> skeleton = skeletonize(data)
-    >>> branch = branch_descriptors(skeleton)
-    >>> assert(branch_len(branch) == 3.41)
-    """
-    return round(branch_data["branch-distance"].mean(), 2)
-
-
-def getEndJunction(graph)
+def getEndJunction(graph):
     """
     >>> data = np.array([[1,1,1],\
                 [1,1,1],\
