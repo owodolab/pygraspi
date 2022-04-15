@@ -93,7 +93,7 @@ def makeInterfaceEdges(G):
     return interface
 
 
-def makeConnectedComponents(G, phase):
+def makeConnectedComponents(G, phase)
     """
     >>> data = np.array([[0, 1], [0, 1]])
     >>> G = graphConstruction(data)
