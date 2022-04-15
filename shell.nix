@@ -40,7 +40,7 @@ in
     nativeBuildInputs = with pypkgs; propagatedBuildInputs ++ [
       pymks
       pygraspi
-    ];
+    ] ++ extra;
 
     shellHook = ''
       export OMPI_MCA_plm_rsh_agent=${pkgs.openssh}/bin/ssh
