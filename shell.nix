@@ -15,22 +15,10 @@ let
   pymks = pypkgs.callPackage "${pymkssrc}/default.nix" {
     graspi=graspi;
   };
-  extra = with pypkgs; [ black pylint flake8 ipywidgets ];
+  extra = with pypkgs; [ black pylint flake8 ];
   graspisrc = builtins.fetchTarball "https://github.com/owodolab/graspi/archive/${graspiVersion}.tar.gz";
   graspi = pypkgs.callPackage "${graspisrc}/default.nix" {};
-  pygraspi = pypkgs.callPackage ./default.nix { skan=skan; sknw=sknw; };
-  skan = pypkgs.buildPythonPackage rec {
-    pname = "skan";
-    version = "0.10.0";
-
-    src = pypkgs.fetchPypi {
-      inherit pname version;
-      sha256 = "sha256-YFVIc+kRXjuOIhIFFNHJzvRfVmAZPEVUAfGXsNplKlk=";
-    };
-
-    propagatedBuildInputs = with pypkgs; [ matplotlib scipy pandas networkx toolz imageio numpydoc tqdm numba scikitimage ];
-
-  };
+  pygraspi = pypkgs.callPackage ./default.nix { sknw=sknw; };
   sknw = pypkgs.buildPythonPackage rec {
     pname = "sknw";
     version = "0.14";
@@ -52,7 +40,7 @@ in
     nativeBuildInputs = with pypkgs; propagatedBuildInputs ++ [
       pymks
       pygraspi
-    ];
+    ] ++ extra;
 
     shellHook = ''
       export OMPI_MCA_plm_rsh_agent=${pkgs.openssh}/bin/ssh
@@ -69,7 +57,5 @@ in
       jupyter contrib nbextension install --user > /dev/null 2>&1
       jupyter nbextension enable spellchecker/main > /dev/null 2>&1
 
-
-#      pip install --user sknw
   '';
   }))
