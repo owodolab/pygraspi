@@ -1,68 +1,20 @@
 import numpy as np
 import networkx as nx
 import doctest
-from .makeGridGraph import make_grid_graph
+from makeGridGraph import make_grid_graph
 
 
-def graphConstruction(morph):
-    m, n = morph.shape
-    G = nx.grid_2d_graph(m, n, periodic=False, create_using=None)
-    return G
-
-
-def numberofEdges(G):
-    """
-    >>> data = np.array([[0,1,0],\
-                [0,1,0],\
-                [0,1,0]])
-    >>> G = graphConstruction(data)
-    >>> assert(numberofEdges(G) == 12)
-    """
-    return G.number_of_edges()
-
-
-def numberofVertices(G):
-    """
-    >>> data = np.array([[0,1,0],\
-                [0,1,0],\
-                [0,1,0]])
-    >>> G = graphConstruction(data)
-    >>> assert(numberofVertices(G) == 9)
-    """
-    return G.number_of_nodes()
-
-
-def setPhaseAttributes(G, morph):
-    mapping = {
-        (i, j): morph[i][j]
-        for i in range(0, morph.shape[0])
-        for j in range(0, morph.shape[1])
-    }
+def makeImageGraph(morph):
+    G = make_grid_graph(morph.shape)
+    vertex_colors = morph.flatten()
+    mapping = {(i):vertex_colors[i] for i in range(len(vertex_colors))}
     nx.set_node_attributes(G, mapping, name="color")
-
     return G
 
-
-def numberofPhaseVertices(G, phase):
-    """
-    >>> data = np.array([[0, 1], [0, 1]])
-    >>> G = graphConstruction(data)
-    >>> G = add_phaseAttributes(G, data)
-    >>> assert(numberofPhaseVertices(G, 0) == 2)
-    """
+def count_of_vertices(G, phase):
     phases = nx.get_node_attributes(G, "color")
     phase_list = list(phases.values())
     return phase_list.count(phase)
-
-
-def add_phaseAttributes(G, morph):
-    mapping = {
-        (i, j): morph[i][j]
-        for i in range(0, morph.shape[0])
-        for j in range(0, morph.shape[1])
-    }
-    nx.set_node_attributes(G, mapping, name="color")
-    return G
 
 
 def node_phaseA(n, G):
@@ -76,41 +28,52 @@ def node_phaseB(n, G):
 
 
 def makeInterfaceEdges(G):
-    """
-    >>> data = np.array([[0, 1], [0, 1]])
-    >>> G = graphConstruction(data)
-    >>> G = add_phaseAttributes(G, data)
-    >>> G.add_edge((0,0), (1, 1))
-    >>> G.add_edge((0,1), (1, 0))
-    >>> assert(len(makeInterfaceEdges(G)) == 4)
-    """
     interface = [
         (n, u)
         for n, u in G.edges()
         if (node_phaseA(n, G) and node_phaseB(u, G))
         or (node_phaseB(n, G) and node_phaseA(u, G))
     ]
-    return interface
-
+    G.remove_edges_from(interface)
+    G.add_node(-1, color = "green")
+    interface = np.unique(np.array(interface))
+    interface_edges = [(x, -1) for x in interface]
+    G.add_edges_from(interface_edges)
+    return G
 
 def makeConnectedComponents(G, phase):
-    """
-    >>> data = np.array([[0, 1], [0, 1]])
-    >>> G = graphConstruction(data)
-    >>> G = add_phaseAttributes(G, data)
-    >>> G.add_edge((0,0), (1, 1))
-    >>> G.add_edge((0,1), (1, 0))
-    >>> assert(makeConnectedComponents(G, 0) == 1)
-    """
     nodes = (node for node, data in G.nodes(data=True) if data.get("color") == phase)
     subgraph = G.subgraph(nodes)
     subgraph.nodes
     return nx.number_connected_components(subgraph)
 
+def interfaceArea(G):
+    #for neighbor in G.neighbors(x):
+    #print(G.nodes[neighbor]["time"])
+    nodes_0 = [neighbor for neighbor in G.neighbors(-1) if G.nodes[neighbor]["color"] == 0]
+    nodes_1 = [neighbor for neighbor in G.neighbors(-1) if G.nodes[neighbor]["color"] == 1]
+    return G.degree[-1], len(nodes_0), len(nodes_1)
 
-def graph_example(nx, ny, nz):
-    """
-    >>> g = graph_example(3, 3, 2)
-    >>> assert(g.number_of_edges() == 89)
-    """
-    return make_grid_graph((nx, ny, nz))
+def shortest_distances(G):
+    path = nx.single_source_shortest_path(G, -1)
+    del path[-1]
+    path_length = [len(p) for p in path.values()]
+    #print(path_length)
+    return sum(path_length)/len(path_length)
+
+def getGraspiDescriptors(data):
+    # phase 1
+    g = makeImageGraph(data)
+    g = makeInterfaceEdges(g)
+    [interface_area, phase_0_interface, phase_1_interface] = interfaceArea(g)
+    
+    return dict(
+        phase_0_count = count_of_vertices(g, 0),
+        phase_1_count = count_of_vertices(g, 1),
+        phase_0_cc = makeConnectedComponents(g, 0),
+        phase_1_cc = makeConnectedComponents(g, 1),
+        interfacial_area = interface_area,
+        phase_0_interface = phase_0_interface,
+        phase_1_interface = phase_1_interface, 
+        distance_to_interface = shortest_distances(g)
+    )
