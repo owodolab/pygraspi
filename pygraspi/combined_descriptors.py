@@ -2,8 +2,8 @@ import numpy as np
 import networkx as nx
 import doctest
 import pandas as pd
-from skeletal_descriptors import *
-from graph_descriptors import getGraspiDescriptors
+from .skeletal_descriptors import *
+from .graph_descriptors import getGraspiDescriptors
 from toolz.curried import map as fmap
 from toolz.curried import pipe
 
@@ -28,9 +28,9 @@ def make_descriptors(data):
     ... ])
     >>> actual = make_descriptors(data)
     >>> actual
-       branch_length_a  branch_length_b  ...  number_of_intersections_a  number_of_intersections_b
-    0             2.00             2.91  ...                          0                          0
-    1             2.41             3.83  ...                          0                          0
+       branch_length_a  ...  number_of_intersections_b
+    0             2.00  ...                          0
+    1             2.41  ...                          0
     <BLANKLINE>
     [2 rows x 16 columns]
     """
@@ -55,7 +55,7 @@ def make_graphdescriptors(data):
       a pandas dataframe of samples by features
 
     Test case
-               
+
     """
     return pipe(
         data,
@@ -63,6 +63,3 @@ def make_graphdescriptors(data):
         list,
         lambda x: pd.DataFrame(x, columns=sorted(x[0].keys())),
     )
-
-
-doctest.testmod()

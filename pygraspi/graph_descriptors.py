@@ -1,7 +1,7 @@
 import numpy as np
 import networkx as nx
 import doctest
-from makeGridGraph import make_grid_graph
+from .makeGridGraph import make_grid_graph
 
 
 def makeImageGraph(morph):
