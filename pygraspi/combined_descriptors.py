@@ -41,6 +41,7 @@ def make_descriptors(data):
         lambda x: pd.DataFrame(x, columns=sorted(x[0].keys())),
     )
 
+
 def make_graphdescriptors(data):
     """Generate multiple microstructure descriptors using graphs
 
@@ -54,17 +55,7 @@ def make_graphdescriptors(data):
       a pandas dataframe of samples by features
 
     Test case
-
-    >>> data = np.array([
-    ...     [[0, 0, 0], [1, 1, 1], [0, 0, 0], [1, 0, 0], [1, 0, 1]],
-    ...     [[0, 1, 1], [1, 1, 1], [0, 0, 0], [1, 0, 0], [1, 0, 1]]
-    ... ])
-    >>> make_graphdescriptors(data)
-       distance_to_interface  interfacial_area  phase_0_cc  ...  phase_1_cc  phase_1_count  phase_1_interface
-    0               2.000000                15           2  ...           3              6                  6
-    1               2.066667                14           2  ...           3              8                  7
-    <BLANKLINE>
-    [2 rows x 8 columns]            
+               
     """
     return pipe(
         data,
@@ -72,5 +63,6 @@ def make_graphdescriptors(data):
         list,
         lambda x: pd.DataFrame(x, columns=sorted(x[0].keys())),
     )
+
 
 doctest.testmod()
