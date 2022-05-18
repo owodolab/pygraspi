@@ -13,5 +13,5 @@ jobs:
           nix_path: nixpkgs=channel:nixos-unstable
       - run: nix-shell --pure --command "py.test --cov-fail-under=100"
       - run: nix-shell --pure --command "black --check setup.py pygraspi"
-      - run: nix-shell --pure --command "pylint setup.py pygraspi"
-      - run: nix-shell --pure --command "flake8 setup.py pygraspi"
+#      - run: nix-shell --pure --command "pylint setup.py pygraspi"
+#      - run: nix-shell --pure --command "flake8 setup.py pygraspi"
