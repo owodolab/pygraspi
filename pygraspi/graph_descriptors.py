@@ -6,13 +6,13 @@ from .makeGridGraph import make_grid_graph
 
 def makeImageGraph(morph):
     """
-        Construct a graph for an input image. 
+    Construct a graph for an input image.
 
-        Args:
-            morph (ND array): The microstructure, an `(n_x, n_y, nz)`
-                shaped array where `n_x, n_y and n_z` are the spatial dimensions.
+    Args:
+        morph (ND array): The microstructure, an `(n_x, n_y, nz)`
+            shaped array where `n_x, n_y and n_z` are the spatial dimensions.
 
-        Example
+    Example
     """
     G = make_grid_graph(morph.shape)
     vertex_colors = morph.flatten()
@@ -23,13 +23,13 @@ def makeImageGraph(morph):
 
 def count_of_vertices(G, phase):
     """
-        Count the number of vertices for a given phase. 
+    Count the number of vertices for a given phase.
 
-        Args:
-            G: The network representing the input microstructure.
-	   phase : The identifier of the phase of interest.
+    Args:
+        G: The network representing the input microstructure.
+       phase : The identifier of the phase of interest.
 
-        Example
+    Example
     """
     phases = nx.get_node_attributes(G, "color")
     phase_list = list(phases.values())
@@ -48,12 +48,12 @@ def node_phaseB(n, G):
 
 def makeInterfaceEdges(G):
     """
-        Connect the vertices on the interface through an interface meta-vertex. 
+    Connect the vertices on the interface through an interface meta-vertex.
 
-        Args:
-            G: The network representing the input microstructure.
+    Args:
+        G: The network representing the input microstructure.
 
-        Example
+    Example
     """
     interface = [
         (n, u)
@@ -71,13 +71,13 @@ def makeInterfaceEdges(G):
 
 def makeConnectedComponents(G, phase):
     """
-        Calculate the number of connected components for a phase of the microstructure. 
+    Calculate the number of connected components for a phase of the microstructure.
 
-        Args:
-            G: The network representing the input microstructure.
-	   phase : The identifier of the phase of interest.
+    Args:
+        G: The network representing the input microstructure.
+       phase : The identifier of the phase of interest.
 
-        Example
+    Example
     """
     nodes = (node for node, data in G.nodes(data=True) if data.get("color") == phase)
     subgraph = G.subgraph(nodes)
@@ -87,12 +87,12 @@ def makeConnectedComponents(G, phase):
 
 def interfaceArea(G):
     """
-        Calculate the interfacial area of the microstructure. 
+    Calculate the interfacial area of the microstructure.
 
-        Args:
-            G: The network representing the input microstructure.
+    Args:
+        G: The network representing the input microstructure.
 
-        Example
+    Example
     """
     nodes_0 = [
         neighbor for neighbor in G.neighbors(-1) if G.nodes[neighbor]["color"] == 0
@@ -105,13 +105,13 @@ def interfaceArea(G):
 
 def shortest_distances(G):
     """
-        Calculate the shortest distances to the meta vertices. 
+    Calculate the shortest distances to the meta vertices.
 
-        Args:
-            G: The network representing the input microstructure.
-	   phase : The identifier of the phase of interest.
+    Args:
+        G: The network representing the input microstructure.
+       phase : The identifier of the phase of interest.
 
-        Example
+    Example
     """
     path = nx.single_source_shortest_path(G, -1)
     del path[-1]
@@ -136,13 +136,13 @@ def inteface_boundary(G, phase):
 
 def getGraspiDescriptors(data):
     """
-        Calculate the graph descriptors for a segmented microstructure image. 
+    Calculate the graph descriptors for a segmented microstructure image.
 
-        Args:
-            data (ND array): The microstructure, an `(n_x, n_y, nz)`
-                shaped array where `n_x, n_y and n_z` are the spatial dimensions.
+    Args:
+        data (ND array): The microstructure, an `(n_x, n_y, nz)`
+            shaped array where `n_x, n_y and n_z` are the spatial dimensions.
 
-        Example
+    Example
     """
     g = makeImageGraph(data)
     g = makeInterfaceEdges(g)
