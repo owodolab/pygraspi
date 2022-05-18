@@ -4,65 +4,36 @@ import doctest
 from .makeGridGraph import make_grid_graph
 
 
-def graphConstruction(morph):
-    m, n = morph.shape
-    G = nx.grid_2d_graph(m, n, periodic=False, create_using=None)
-    return G
-
-
-def numberofEdges(G):
+def makeImageGraph(morph):
     """
-    >>> data = np.array([[0,1,0],\
-                [0,1,0],\
-                [0,1,0]])
-    >>> G = graphConstruction(data)
-    >>> assert(numberofEdges(G) == 12)
+    Construct a graph for an input image.
+
+    Args:
+        morph (ND array): The microstructure, an `(n_x, n_y, nz)`
+            shaped array where `n_x, n_y and n_z` are the spatial dimensions.
+
+    Example
     """
-    return G.number_of_edges()
-
-
-def numberofVertices(G):
-    """
-    >>> data = np.array([[0,1,0],\
-                [0,1,0],\
-                [0,1,0]])
-    >>> G = graphConstruction(data)
-    >>> assert(numberofVertices(G) == 9)
-    """
-    return G.number_of_nodes()
-
-
-def setPhaseAttributes(G, morph):
-    mapping = {
-        (i, j): morph[i][j]
-        for i in range(0, morph.shape[0])
-        for j in range(0, morph.shape[1])
-    }
+    G = make_grid_graph(morph.shape)
+    vertex_colors = morph.flatten()
+    mapping = {(i): vertex_colors[i] for i in range(len(vertex_colors))}
     nx.set_node_attributes(G, mapping, name="color")
-
     return G
 
 
-def numberofPhaseVertices(G, phase):
+def count_of_vertices(G, phase):
     """
-    >>> data = np.array([[0, 1], [0, 1]])
-    >>> G = graphConstruction(data)
-    >>> G = add_phaseAttributes(G, data)
-    >>> assert(numberofPhaseVertices(G, 0) == 2)
+    Count the number of vertices for a given phase.
+
+    Args:
+        G: The network representing the input microstructure.
+       phase : The identifier of the phase of interest.
+
+    Example
     """
     phases = nx.get_node_attributes(G, "color")
     phase_list = list(phases.values())
     return phase_list.count(phase)
-
-
-def add_phaseAttributes(G, morph):
-    mapping = {
-        (i, j): morph[i][j]
-        for i in range(0, morph.shape[0])
-        for j in range(0, morph.shape[1])
-    }
-    nx.set_node_attributes(G, mapping, name="color")
-    return G
 
 
 def node_phaseA(n, G):
@@ -75,14 +46,14 @@ def node_phaseB(n, G):
     return nodes[n]["color"] == 1
 
 
-def getInterfaceEdges(G):
+def makeInterfaceEdges(G):
     """
-    >>> data = np.array([[0, 1], [0, 1]])
-    >>> G = graphConstruction(data)
-    >>> G = add_phaseAttributes(G, data)
-    >>> G.add_edge((0,0), (1, 1))
-    >>> G.add_edge((0,1), (1, 0))
-    >>> assert(len(getInterfaceEdges(G)) == 4)
+    Connect the vertices on the interface through an interface meta-vertex.
+
+    Args:
+        G: The network representing the input microstructure.
+
+    Example
     """
     interface = [
         (n, u)
@@ -90,17 +61,23 @@ def getInterfaceEdges(G):
         if (node_phaseA(n, G) and node_phaseB(u, G))
         or (node_phaseB(n, G) and node_phaseA(u, G))
     ]
-    return interface
+    G.remove_edges_from(interface)
+    G.add_node(-1, color="green")
+    interface = np.unique(np.array(interface))
+    interface_edges = [(x, -1) for x in interface]
+    G.add_edges_from(interface_edges)
+    return G
 
 
-def getConnectedComponents(G, phase):
+def makeConnectedComponents(G, phase):
     """
-    >>> data = np.array([[0, 1], [0, 1]])
-    >>> G = graphConstruction(data)
-    >>> G = add_phaseAttributes(G, data)
-    >>> G.add_edge((0,0), (1, 1))
-    >>> G.add_edge((0,1), (1, 0))
-    >>> assert(getConnectedComponents(G, 0) == 1)
+    Calculate the number of connected components for a phase of the microstructure.
+
+    Args:
+        G: The network representing the input microstructure.
+       phase : The identifier of the phase of interest.
+
+    Example
     """
     nodes = (node for node, data in G.nodes(data=True) if data.get("color") == phase)
     subgraph = G.subgraph(nodes)
@@ -108,9 +85,76 @@ def getConnectedComponents(G, phase):
     return nx.number_connected_components(subgraph)
 
 
-def graph_example(nx, ny, nz):
+def interfaceArea(G):
     """
-    >>> g = graph_example(3, 3, 2)
-    >>> assert(g.number_of_edges() == 89)
+    Calculate the interfacial area of the microstructure.
+
+    Args:
+        G: The network representing the input microstructure.
+
+    Example
     """
-    return make_grid_graph((nx, ny, nz))
+    nodes_0 = [
+        neighbor for neighbor in G.neighbors(-1) if G.nodes[neighbor]["color"] == 0
+    ]
+    nodes_1 = [
+        neighbor for neighbor in G.neighbors(-1) if G.nodes[neighbor]["color"] == 1
+    ]
+    return G.degree[-1], len(nodes_0), len(nodes_1)
+
+
+def shortest_distances(G):
+    """
+    Calculate the shortest distances to the meta vertices.
+
+    Args:
+        G: The network representing the input microstructure.
+       phase : The identifier of the phase of interest.
+
+    Example
+    """
+    path = nx.single_source_shortest_path(G, -1)
+    del path[-1]
+    path_length = [len(p) for p in path.values()]
+    # print(path_length)
+    return sum(path_length) / len(path_length)
+
+
+def shortest_dist_boundary(G, phase):
+    path = nx.single_source_shortest_path(g, -1)
+    path_length = [len(p) for p in path.values()]
+    return sum(path_length) / len(path_length)
+
+
+def tortuosity(G, phase):
+    return None
+
+
+def inteface_boundary(G, phase):
+    return None
+
+
+def getGraspiDescriptors(data):
+    """
+    Calculate the graph descriptors for a segmented microstructure image.
+
+    Args:
+        data (ND array): The microstructure, an `(n_x, n_y, nz)`
+            shaped array where `n_x, n_y and n_z` are the spatial dimensions.
+
+    Example
+    """
+    g = makeImageGraph(data)
+    g = makeInterfaceEdges(g)
+    [interface_area, phase_0_interface, phase_1_interface] = interfaceArea(g)
+
+    return dict(
+        phase_0_count=count_of_vertices(g, 0),
+        phase_1_count=count_of_vertices(g, 1),
+        phase_0_cc=makeConnectedComponents(g, 0),
+        phase_1_cc=makeConnectedComponents(g, 1),
+        interfacial_area=interface_area,
+        phase_0_interface=phase_0_interface,
+        phase_1_interface=phase_1_interface,
+        distance_to_interface=shortest_distances(g),
+    )
