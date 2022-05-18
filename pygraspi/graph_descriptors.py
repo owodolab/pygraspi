@@ -119,14 +119,17 @@ def shortest_distances(G):
     # print(path_length)
     return sum(path_length) / len(path_length)
 
+
 def shortest_dist_boundary(G, phase):
     path = nx.single_source_shortest_path(g, -1)
     path_length = [len(p) for p in path.values()]
-    return sum(path_length)/len(path_length)
+    return sum(path_length) / len(path_length)
+
 
 def tortuosity(G, phase):
     return None
-    
+
+
 def inteface_boundary(G, phase):
     return None
 
