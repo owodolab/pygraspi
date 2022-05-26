@@ -151,6 +151,7 @@ def shortest_distances_all(G):
     # print(path_length)
     return sum(path_length) / len(path_length)
 
+
 def shortest_distances_phase(G, phase):
     """
     Calculate the shortest distances to the meta vertices.
@@ -169,19 +170,23 @@ def shortest_distances_phase(G, phase):
     >>> assert(shortest_distances_phase(g, 1) == 2.0)
     """
     source = [node for node, data in G.nodes(data=True) if data.get("color") == phase]
-    path = [nx.shortest_path(G, s, target=-1, weight=None, method='dijkstra') for s in source]
+    path = [
+        nx.shortest_path(G, s, target=-1, weight=None, method="dijkstra")
+        for s in source
+    ]
     path_length = [len(p) for p in path]
-    return sum(path_length)/len(path_length)
-
+    return sum(path_length) / len(path_length)
 
 
 def shortest_dist_boundary(G, phase):
     path = nx.single_source_shortest_path(g, -1)
     path_length = [len(p) for p in path.values()]
-    return sum(path_length)/len(path_length)
+    return sum(path_length) / len(path_length)
+
 
 def tortuosity(G, phase):
     return None
+
 
 def interface_boundary(G, phase):
     return None
@@ -210,7 +215,6 @@ def getGraspiDescriptors(data):
         phase_0_interface=phase_0_interface,
         phase_1_interface=phase_1_interface,
         distance_to_interface=shortest_distances_all(g),
-        distance_to_interface_0 = shortest_distances_phase(g, 0),
-        distance_to_interface_1 = shortest_distances_phase(g, 1),
+        distance_to_interface_0=shortest_distances_phase(g, 0),
+        distance_to_interface_1=shortest_distances_phase(g, 1),
     )
-doctest.testmod()

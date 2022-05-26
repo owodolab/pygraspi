@@ -69,8 +69,10 @@ def getBranchLen(graph):
     b_l = [graph.edges[e]["weight"] for e in graph.edges()]
     return np.array([len(b_l), round(sum(b_l) / len(b_l), 2)])
 
+
 def number_of_cycles(graph):
     return None
+
 
 def getSkeletalDescriptors(data):
     # phase 1
