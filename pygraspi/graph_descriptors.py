@@ -6,13 +6,14 @@ from .makeGridGraph import make_grid_graph
 
 def makeImageGraph(morph):
     """
-        Construct a graph for an input image. 
+    Construct a graph for an input image.
 
-        Args:
-            morph (ND array): The microstructure, an `(n_x, n_y, nz)`
-                shaped array where `n_x, n_y and n_z` are the spatial dimensions.
+    Args:
+        morph (ND array): The microstructure, an `(n_x, n_y, nz)`
+            shaped array where `n_x, n_y and n_z` are the spatial dimensions.
 
-        Example
+    Example
+
     """
     G = make_grid_graph(morph.shape)
     vertex_colors = morph.flatten()
@@ -23,13 +24,19 @@ def makeImageGraph(morph):
 
 def count_of_vertices(G, phase):
     """
-        Count the number of vertices for a given phase. 
+    Count the number of vertices for a given phase.
 
-        Args:
-            G: The network representing the input microstructure.
-	   phase : The identifier of the phase of interest.
+    Args:
+        G: The network representing the input microstructure.
+    phase : The identifier of the phase of interest.
 
-        Example
+    Example
+    >>> data = np.array([[0,0,0],\
+                [1,1,1],\
+                [0,0,0]])
+    >>> g = makeImageGraph(data)
+    >>> assert(count_of_vertices(g, 0) == 6)
+    >>> assert(count_of_vertices(g, 1) == 3)
     """
     phases = nx.get_node_attributes(G, "color")
     phase_list = list(phases.values())
@@ -48,12 +55,18 @@ def node_phaseB(n, G):
 
 def makeInterfaceEdges(G):
     """
-        Connect the vertices on the interface through an interface meta-vertex. 
+    Connect the vertices on the interface through an interface meta-vertex.
 
-        Args:
-            G: The network representing the input microstructure.
+    Args:
+        G: The network representing the input microstructure.
 
-        Example
+    Example
+    >>> data = np.array([[0,0,0],\
+                [1,1,1],\
+                [0,0,0]])
+    >>> g = makeImageGraph(data)
+    >>> g = makeInterfaceEdges(g)
+    >>> assert(g.number_of_nodes() == 10)
     """
     interface = [
         (n, u)
@@ -71,13 +84,20 @@ def makeInterfaceEdges(G):
 
 def makeConnectedComponents(G, phase):
     """
-        Calculate the number of connected components for a phase of the microstructure. 
+    Calculate the number of connected components for a phase of the microstructure.
 
-        Args:
-            G: The network representing the input microstructure.
-	   phase : The identifier of the phase of interest.
+    Args:
+        G: The network representing the input microstructure.
+    phase : The identifier of the phase of interest.
 
-        Example
+    Example
+    >>> data = np.array([[0,0,0],\
+                [1,1,1],\
+                [0,0,0]])
+    >>> g = makeImageGraph(data)
+    >>> g = makeInterfaceEdges(g)
+    >>> assert(makeConnectedComponents(g, 0) == 2)
+    >>> assert(makeConnectedComponents(g, 1) == 1)
     """
     nodes = (node for node, data in G.nodes(data=True) if data.get("color") == phase)
     subgraph = G.subgraph(nodes)
@@ -87,12 +107,18 @@ def makeConnectedComponents(G, phase):
 
 def interfaceArea(G):
     """
-        Calculate the interfacial area of the microstructure. 
+    Calculate the interfacial area of the microstructure.
 
-        Args:
-            G: The network representing the input microstructure.
+    Args:
+        G: The network representing the input microstructure.
 
-        Example
+    Example
+    >>> data = np.array([[0,0,0],\
+                [1,1,1],\
+                [0,0,0]])
+    >>> g = makeImageGraph(data)
+    >>> g = makeInterfaceEdges(g)
+    >>> assert(interfaceArea(g) == (9, 6, 3))
     """
     nodes_0 = [
         neighbor for neighbor in G.neighbors(-1) if G.nodes[neighbor]["color"] == 0
@@ -103,21 +129,51 @@ def interfaceArea(G):
     return G.degree[-1], len(nodes_0), len(nodes_1)
 
 
-def shortest_distances(G):
+def shortest_distances_all(G):
     """
-        Calculate the shortest distances to the meta vertices. 
+    Calculate the shortest distances to the meta vertices.
 
-        Args:
-            G: The network representing the input microstructure.
-	   phase : The identifier of the phase of interest.
+    Args:
+        G: The network representing the input microstructure.
+    phase : The identifier of the phase of interest.
 
-        Example
+    Example
+    >>> data = np.array([[0,0,0],\
+                [1,1,1],\
+                [0,0,0]])
+    >>> g = makeImageGraph(data)
+    >>> g = makeInterfaceEdges(g)
+    >>> assert(shortest_distances_all(g) == 2.0)
     """
     path = nx.single_source_shortest_path(G, -1)
     del path[-1]
     path_length = [len(p) for p in path.values()]
     # print(path_length)
     return sum(path_length) / len(path_length)
+
+def shortest_distances_phase(G, phase):
+    """
+    Calculate the shortest distances to the meta vertices.
+
+    Args:
+        G: The network representing the input microstructure.
+    phase : The identifier of the phase of interest.
+
+    Example
+    >>> data = np.array([[0,0,0],\
+                [1,1,1],\
+                [0,0,0]])
+    >>> g = makeImageGraph(data)
+    >>> g = makeInterfaceEdges(g)
+    >>> assert(shortest_distances_phase(g, 0) == 2.0)
+    >>> assert(shortest_distances_phase(g, 1) == 2.0)
+    """
+    source = [node for node, data in G.nodes(data=True) if data.get("color") == phase]
+    path = [nx.shortest_path(G, s, target=-1, weight=None, method='dijkstra') for s in source]
+    path_length = [len(p) for p in path]
+    return sum(path_length)/len(path_length)
+
+
 
 def shortest_dist_boundary(G, phase):
     path = nx.single_source_shortest_path(g, -1)
@@ -126,20 +182,20 @@ def shortest_dist_boundary(G, phase):
 
 def tortuosity(G, phase):
     return None
-    
-def inteface_boundary(G, phase):
+
+def interface_boundary(G, phase):
     return None
 
 
 def getGraspiDescriptors(data):
     """
-        Calculate the graph descriptors for a segmented microstructure image. 
+    Calculate the graph descriptors for a segmented microstructure image.
 
-        Args:
-            data (ND array): The microstructure, an `(n_x, n_y, nz)`
-                shaped array where `n_x, n_y and n_z` are the spatial dimensions.
+    Args:
+        data (ND array): The microstructure, an `(n_x, n_y, nz)`
+            shaped array where `n_x, n_y and n_z` are the spatial dimensions.
 
-        Example
+    Example
     """
     g = makeImageGraph(data)
     g = makeInterfaceEdges(g)
@@ -153,5 +209,8 @@ def getGraspiDescriptors(data):
         interfacial_area=interface_area,
         phase_0_interface=phase_0_interface,
         phase_1_interface=phase_1_interface,
-        distance_to_interface=shortest_distances(g),
+        distance_to_interface=shortest_distances_all(g),
+        distance_to_interface_0 = shortest_distances_phase(g, 0),
+        distance_to_interface_1 = shortest_distances_phase(g, 1),
     )
+doctest.testmod()
