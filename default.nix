@@ -6,6 +6,7 @@
 , networkx
 , scikitimage
 , sknw
+, nbval
 }:
 
 buildPythonPackage rec {
@@ -19,6 +20,7 @@ buildPythonPackage rec {
     networkx
     scikitimage
     sknw
+    nbval
   ];
 
   checkInputs = [ pytest ];
