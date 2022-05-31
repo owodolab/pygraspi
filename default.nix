@@ -28,7 +28,7 @@ buildPythonPackage rec {
   checkInputs = [ pytest ];
 
   checkPhase = ''
-    pytest
+    pytest pygraspi
   '';
   # checkInputs = [ pytestCheckHook ];
 
