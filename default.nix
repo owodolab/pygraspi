@@ -6,6 +6,8 @@
 , networkx
 , scikitimage
 , sknw
+, nbval
+, pymks
 }:
 
 buildPythonPackage rec {
@@ -19,12 +21,14 @@ buildPythonPackage rec {
     networkx
     scikitimage
     sknw
+    nbval
+    pymks
   ];
 
   checkInputs = [ pytest ];
 
   checkPhase = ''
-    pytest
+    pytest pygraspi
   '';
   # checkInputs = [ pytestCheckHook ];
 

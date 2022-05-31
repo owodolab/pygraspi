@@ -18,7 +18,7 @@ let
   extra = with pypkgs; [ black pylint flake8 ];
   graspisrc = builtins.fetchTarball "https://github.com/owodolab/graspi/archive/${graspiVersion}.tar.gz";
   graspi = pypkgs.callPackage "${graspisrc}/default.nix" {};
-  pygraspi = pypkgs.callPackage ./default.nix { sknw=sknw; };
+  pygraspi = pypkgs.callPackage ./default.nix { sknw=sknw; pymks=pymks; };
   sknw = pypkgs.buildPythonPackage rec {
     pname = "sknw";
     version = "0.14";
@@ -37,8 +37,7 @@ in
 
     propagatedBuildInputs = old.propagatedBuildInputs;
 
-    nativeBuildInputs = with pypkgs; propagatedBuildInputs ++ [
-      pymks
+    nativeBuildInputs = propagatedBuildInputs ++ [
       pygraspi
     ] ++ extra;
 
