@@ -33,7 +33,9 @@ let
 
   };
   nixes_src = builtins.fetchTarball "https://github.com/wd15/nixes/archive/9a757526887dfd56c6665290b902f93c422fd6b1.zip";
-  jupyter_extra = pypkgs.callPackage "${nixes_src}/jupyter/default.nix" { };
+  jupyter_extra = pypkgs.callPackage "${nixes_src}/jupyter/default.nix" {
+    jupyterlab=(if pkgs.stdenv.isDarwin then pypkgs.jupyter else pypkgs.jupyterlab);
+  };
 in
  (pygraspi.overridePythonAttrs (old: rec {
 
@@ -52,12 +54,6 @@ in
       export PYTHONPATH=$PYTHONPATH:$USER_SITE:$(pwd)
       export PATH=$PATH:$PYTHONUSERBASE/bin
       export NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
-
-      # jupyter nbextension install --py widgetsnbextension --user > /dev/null 2>&1
-      # jupyter nbextension enable widgetsnbextension --user --py > /dev/null 2>&1
-      # pip install jupyter_contrib_nbextensions --user > /dev/null 2>&1
-      # jupyter contrib nbextension install --user > /dev/null 2>&1
-      # jupyter nbextension enable spellchecker/main > /dev/null 2>&1
 
   '';
   }))
