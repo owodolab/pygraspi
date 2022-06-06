@@ -4,7 +4,7 @@
 #
 
 {
-  tag ? "22.05-pre",
+  tag ? "22.05",
   graspiVersion ? "59f6a8a2e1ca7c8744a4e37701b919131efb2f45",
   pymksVersion ? "5aeb56c9faff8a655136747faa744b81d9549e3d"
 }:
@@ -14,6 +14,7 @@ let
   pymkssrc = builtins.fetchTarball "https://github.com/materialsinnovation/pymks/archive/${pymksVersion}.tar.gz";
   pymks = pypkgs.callPackage "${pymkssrc}/default.nix" {
     graspi=graspi;
+    sfepy=null;
   };
   extra = with pypkgs; [ black pylint flake8 ];
   graspisrc = builtins.fetchTarball "https://github.com/owodolab/graspi/archive/${graspiVersion}.tar.gz";
@@ -31,7 +32,8 @@ let
     propagatedBuildInputs = with pypkgs; [ numba networkx ];
 
   };
-
+  nixes_src = builtins.fetchTarball "https://github.com/wd15/nixes/archive/9a757526887dfd56c6665290b902f93c422fd6b1.zip";
+  jupyter_extra = pypkgs.callPackage "${nixes_src}/jupyter/default.nix" { };
 in
  (pygraspi.overridePythonAttrs (old: rec {
 
@@ -39,7 +41,7 @@ in
 
     nativeBuildInputs = propagatedBuildInputs ++ [
       pygraspi
-    ] ++ extra;
+    ] ++ extra ++ [ jupyter_extra ];
 
     shellHook = ''
       export OMPI_MCA_plm_rsh_agent=${pkgs.openssh}/bin/ssh
@@ -49,12 +51,13 @@ in
       export USER_SITE=`python -c "import site; print(site.USER_SITE)"`
       export PYTHONPATH=$PYTHONPATH:$USER_SITE:$(pwd)
       export PATH=$PATH:$PYTHONUSERBASE/bin
+      export NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
-      jupyter nbextension install --py widgetsnbextension --user > /dev/null 2>&1
-      jupyter nbextension enable widgetsnbextension --user --py > /dev/null 2>&1
-      pip install jupyter_contrib_nbextensions --user > /dev/null 2>&1
-      jupyter contrib nbextension install --user > /dev/null 2>&1
-      jupyter nbextension enable spellchecker/main > /dev/null 2>&1
+      # jupyter nbextension install --py widgetsnbextension --user > /dev/null 2>&1
+      # jupyter nbextension enable widgetsnbextension --user --py > /dev/null 2>&1
+      # pip install jupyter_contrib_nbextensions --user > /dev/null 2>&1
+      # jupyter contrib nbextension install --user > /dev/null 2>&1
+      # jupyter nbextension enable spellchecker/main > /dev/null 2>&1
 
   '';
   }))
