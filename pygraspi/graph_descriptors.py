@@ -19,7 +19,6 @@ def makeImageGraph(morph):
     nx.set_node_attributes(G, mapping, name="color")
     return G
 
-
 def count_of_vertices(G, phase):
     """Count the number of vertices for a given phase.
 
