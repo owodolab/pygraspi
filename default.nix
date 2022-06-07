@@ -8,6 +8,7 @@
 , sknw
 , nbval
 , pymks
+, graph-tool
 }:
 
 buildPythonPackage rec {
@@ -23,6 +24,7 @@ buildPythonPackage rec {
     sknw
     nbval
     pymks
+    graph-tool
   ];
 
   checkInputs = [ pytest ];
