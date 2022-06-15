@@ -75,7 +75,7 @@ def number_of_cycles(graph):
 
 
 def getSkeletalDescriptors(data):
-    # phase 1
+    
     [skeleton_a, distance_map_a] = skeletonize(data)
     [skeleton_b, distance_map_b] = skeletonize(1 - data)
 

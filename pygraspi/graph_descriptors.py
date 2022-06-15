@@ -14,9 +14,12 @@ def makeImageGraph(morph):
 
     """
     G = make_grid_graph(morph.shape)
-    vertex_colors = morph.flatten()
-    mapping = {(i): vertex_colors[i] for i in range(len(vertex_colors))}
-    nx.set_node_attributes(G, mapping, name="color")
+    v = G.get_vertices() 
+    vphase = G.new_vertex_property("int")
+    vertex_colors = data[0].flatten()
+    for i in range(len(vertex_colors)):
+        vphase[i] = vertex_colors[i]
+    G.vertex_properties["color"] = vphase
     return G
 
 def count_of_vertices(G, phase):
@@ -37,20 +40,9 @@ def count_of_vertices(G, phase):
     >>> assert(count_of_vertices(g, 1) == 3)
 
     """
-    phases = nx.get_node_attributes(G, "color")
-    phase_list = list(phases.values())
-    return phase_list.count(phase)
-
-
-def node_phaseA(n, G):
-    nodes = G.nodes
-    return nodes[n]["color"] == 0
-
-
-def node_phaseB(n, G):
-    nodes = G.nodes
-    return nodes[n]["color"] == 1
-
+    phases = np.array(list(G.vertex_properties["color"]))
+    phasec = (phases == phase).sum()
+    return phasec
 
 def makeInterfaceEdges(G):
     """
