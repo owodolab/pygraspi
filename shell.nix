@@ -16,10 +16,22 @@ let
     graspi=graspi;
     sfepy=null;
   };
-  extra = with pypkgs; [ black pylint flake8 ];
+  extra = with pypkgs; [ black pylint flake8 isort ];
   graspisrc = builtins.fetchTarball "https://github.com/owodolab/graspi/archive/${graspiVersion}.tar.gz";
   graspi = pypkgs.callPackage "${graspisrc}/default.nix" {};
   pygraspi = pypkgs.callPackage ./default.nix { sknw=sknw; pymks=pymks; };
+  nbqa = pypkgs.buildPythonPackage rec {
+    pname = "nbqa";
+    version = "1.3.1";
+#    format = "pyproject";
+    src = pypkgs.fetchPypi {
+      inherit pname version;
+      sha256 = "sha256-66fz00k8ZCmww/ladkBnsrAHdF9ykDcphVCmFle/7F4=";
+    };
+
+    propagatedBuildInputs = with pypkgs; [ ipython tomli tokenize-rt ];
+
+  };
   sknw = pypkgs.buildPythonPackage rec {
     pname = "sknw";
     version = "0.14";
@@ -42,8 +54,7 @@ in
     propagatedBuildInputs = old.propagatedBuildInputs;
 
     nativeBuildInputs = propagatedBuildInputs ++ [
-      pygraspi
-    ] ++ extra ++ [ jupyter_extra ];
+    ] ++ extra ++ [ jupyter_extra nbqa ];
 
     shellHook = ''
       export OMPI_MCA_plm_rsh_agent=${pkgs.openssh}/bin/ssh
