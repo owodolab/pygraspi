@@ -3,7 +3,7 @@ import networkx as nx
 import doctest
 import pandas as pd
 from .skeletal_descriptors import *
-from .graph_descriptors import getGraspiDescriptors
+from .graph_graphtool import getGraspiDescriptors
 from toolz.curried import map as fmap
 from toolz.curried import pipe
 

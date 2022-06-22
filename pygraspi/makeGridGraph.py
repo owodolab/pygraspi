@@ -68,12 +68,13 @@ def make_grid_graph(shape):
     g.add_edges_from(make_grid_edges(*shape))
     return g
 
+
 def make_grid_graph_gt(shape):
     """
     >>> make_grid_graph_gt([2, 2]) # doctest:+ELLIPSIS
     <Graph object, undirected, with 4 vertices and 6 edges, at ...>
     """
-    g = Graph(directed = False)
+    g = Graph(directed=False)
     g.add_vertex(np.prod(shape))
     g.add_edge_list(make_grid_edges(*shape))
     return g
