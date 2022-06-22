@@ -4,4 +4,4 @@
 
 from setuptools import setup
 
-setup(dict(data_files=["setup.cfg"]))
+setup(**dict(data_files=["setup.cfg"]))
