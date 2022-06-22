@@ -1,30 +1,43 @@
+"""Computes the skeleton of the microstructures and subsequently
+calculates skeleton-based descriptors.
+
+"""
+
 import numpy as np
 import doctest
-from skimage.morphology import medial_axis, skeletonize
+from skimage.morphology import medial_axis
 import sknw
 
 
-def neighborhood(nx, ny):
-    vertex_list = np.array(range(nx * ny))
-    # neighborhood = np.zeros([vertex_list.shape[0], 8])
-
-    return neighborhood
+# def neighborhood(nx, ny):
+#     vertex_list = np.array(range(nx * ny))
+#     return np.zeros([vertex_list.shape[0], 8])
 
 
-def skeletonize(morph):
-    """
+def skeletonize(data):
+    """Generates the skeleton for a microstructure
+
+    Args:
+      data: a single microstructure of any dimension with only two
+        phases
+
+    Returns:
+      the skeletonized microstructure (a Boolean array) where True is
+      the skeleton
+
+    Test case
+
     >>> data = np.array([[1,1,1],\
                 [1,1,1],\
                 [1,1,1]])
     >>> skeleton = skeletonize(data)[0]
-    >>> assert np.allclose(skeleton, [[False, False,  True], [False, False,  True], [True,  True, False]])
+    >>> assert np.allclose(
+    ...     skeleton,
+    ...     [[False, False,  True], [False, False,  True], [True,  True, False]]
+    ... )
+
     """
-    skel, distance = medial_axis(morph, return_distance=True)
-    return skel, distance
-
-
-def skeletal_len(skeleton):
-    return np.count_nonzero(skeleton)
+    return medial_axis(data, return_distance=True)
 
 
 def f_skeletal_pixels(skeleton):
