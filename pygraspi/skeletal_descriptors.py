@@ -71,7 +71,12 @@ def getBranchLen(graph):
 
 
 def number_of_cycles(graph):
-    return None
+    cycles = 0
+    for cc in sorted(nx.connected_components(graph), key=len, reverse=True):
+        if len(cc) > 2:
+            sgraph = graph.subgraph(cc)
+            cycles += max((sgraph.number_of_edges() - sgraph.number_of_nodes()) + 1, 0)
+    return cycles
 
 
 def getSkeletalDescriptors(data):
@@ -109,4 +114,6 @@ def getSkeletalDescriptors(data):
         dist_to_interface_max_b=max(d_b),
         dist_to_interface_avg_a=round(sum(d_a) / len(d_a), 2),
         dist_to_interface_avg_b=round(sum(d_b) / len(d_b), 2),
+        number_of_cycles_a = number_of_cycles(graph_a),
+        number_of_cycles_b = number_of_cycles(graph_b),
     )
