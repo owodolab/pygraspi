@@ -1,12 +1,12 @@
-import numpy as np
-import networkx as nx
-import doctest
+"""Functions to calculatate descriptors
+
+"""
 import pandas as pd
-from .skeletal_descriptors import *
-from .graph_graphtool import getGraspiDescriptors
 from toolz.curried import map as fmap
 from toolz.curried import pipe
 
+from .skeletal_descriptors import getSkeletalDescriptors
+from .graph_graphtool import getGraspiDescriptors
 
 def _make_skeletal_descriptors(data):
     """Generate microstructure descriptors from the skeleton
@@ -91,8 +91,8 @@ def make_descriptors(data):
     dist_to_interface_min_a   minimum distance to the interface from the skeleton in phase 0
     dist_to_interface_min_b   minimum distance to the interface from the skeleton in phase 1
     distance_to_interface     average of shortest distances to nearest interface from all pixels
-    distance_to_interface_0   average of shortest distances to nearest interface from all pixels in phase 0
-    distance_to_interface_1   average of shortest distances to nearest interface from all pixels in phase 1
+    distance_to_interface_0   average of shortest distances to the interface from phase 0
+    distance_to_interface_1   average of shortest distances to the interface from phase 1
     f_skeletal_pixels_a       fraction of skeleton pixels in phase 0
     f_skeletal_pixels_b       fraction of skeleton pixels in phase 1
     interfacial_area          number of pixels on the interface
