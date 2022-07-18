@@ -1,14 +1,8 @@
 import numpy as np
+import networkx as nx
 import doctest
 from skimage.morphology import medial_axis, skeletonize
 import sknw
-
-
-def neighborhood(nx, ny):
-    vertex_list = np.array(range(nx * ny))
-    # neighborhood = np.zeros([vertex_list.shape[0], 8])
-
-    return neighborhood
 
 
 def skeletonize(morph):
@@ -71,6 +65,14 @@ def getBranchLen(graph):
 
 
 def number_of_cycles(graph):
+    """
+    >>> data = np.array([[1,1,1],\
+                [1,1,1],\
+                [1,1,1]])
+    >>> skeleton = skeletonize(data)[0]
+    >>> graph = getSkeletalGraph(skeleton)
+    >>> assert np.allclose(number_of_cycles(graph), [0, 0])
+    """
     cycles = 0
     for cc in sorted(nx.connected_components(graph), key=len, reverse=True):
         if len(cc) > 2:
@@ -114,6 +116,6 @@ def getSkeletalDescriptors(data):
         dist_to_interface_max_b=max(d_b),
         dist_to_interface_avg_a=round(sum(d_a) / len(d_a), 2),
         dist_to_interface_avg_b=round(sum(d_b) / len(d_b), 2),
-        number_of_cycles_a = number_of_cycles(graph_a),
-        number_of_cycles_b = number_of_cycles(graph_b),
+        number_of_cycles_a=number_of_cycles(graph_a),
+        number_of_cycles_b=number_of_cycles(graph_b),
     )

@@ -2,11 +2,13 @@
 
 """
 import pandas as pd
+import numpy as np
 from toolz.curried import map as fmap
 from toolz.curried import pipe
 
 from .skeletal_descriptors import getSkeletalDescriptors
 from .graph_graphtool import getGraspiDescriptors
+
 
 def _make_skeletal_descriptors(data):
     """Generate microstructure descriptors from the skeleton
@@ -29,7 +31,7 @@ def _make_skeletal_descriptors(data):
     0             2.00  ...                          0
     1             2.41  ...                          0
     <BLANKLINE>
-    [2 rows x 16 columns]
+    [2 rows x 18 columns]
 
     """
     return pipe(
