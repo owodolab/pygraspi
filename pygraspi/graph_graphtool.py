@@ -173,12 +173,83 @@ def shortest_distance_gt(G):
     return dist_to_interface, dist_to_interface_0, dist_to_interface_1
 
 
-def tortuosity(G, phase):
-    return None
+def surface_area(G, data_shape, phase):
+    rows, cols = data_shape
+    boundary_left = np.array([i for i in range(0, rows * cols, cols)])
+    boundary_right = np.array([i for i in range(cols - 1, rows * cols, cols)])
+    boundary_top = np.array([i for i in range(0, cols)])
+    boundary_bottom = np.array([i for i in range(rows * cols - cols, rows * cols)])
+
+    phases = np.array(list(G.vertex_properties["color"])[:-1])
+    if phase == 0:
+        phases = 1 - phases
+
+    return (
+        sum(phases[boundary_left]),
+        sum(phases[boundary_right]),
+        sum(phases[boundary_top]),
+        sum(phases[boundary_bottom]),
+    )
 
 
-def interface_boundary(G, phase):
-    return None
+def surface_shortest_distances(G, data_shape):
+    rows, cols = data_shape
+    boundary_top = [i for i in range(0, cols)]
+    top = G.add_vertex()
+    boundary_bottom = [i for i in range(rows * cols - cols, rows * cols)]
+    bottom = G.add_vertex()
+    boundary_left = [i for i in range(0, rows * cols, cols)]
+    left = G.add_vertex()
+    boundary_right = [i for i in range(cols - 1, rows * cols, cols)]
+    right = G.add_vertex()
+
+    phases = G.vertex_properties["color"]
+    phases[top] = -2
+    phases[bottom] = -2
+    phases[left] = -2
+    phases[right] = -2
+
+    G.vertex_properties["color"] = phases
+
+    boundary_edges = np.concatenate(
+        (
+            np.array((list([int(top)] * len(boundary_top)), boundary_top)).T,
+            np.array((list([int(bottom)] * len(boundary_bottom)), boundary_bottom)).T,
+            np.array((list([int(left)] * len(boundary_left)), boundary_left)).T,
+            np.array((list([int(right)] * len(boundary_right)), boundary_right)).T,
+        ),
+        axis=0,
+    )
+
+    G.add_edge_list(boundary_edges)
+    phases = np.array(list(G.vertex_properties["color"]))
+
+    dt = np.array(list(shortest_distance(G, top)))
+    vfilt_top_0 = list(np.where(phases == 0)[0])
+    vfilt_top_1 = list(np.where(phases == 1)[0])
+
+    db = np.array(list(shortest_distance(G, bottom)))
+    vfilt_bottom_0 = list(np.where(phases == 0)[0])
+    vfilt_bottom_1 = list(np.where(phases == 1)[0])
+
+    dl = np.array(list(shortest_distance(G, left)))
+    vfilt_left_0 = list(np.where(phases == 0)[0])
+    vfilt_left_1 = list(np.where(phases == 1)[0])
+
+    dr = np.array(list(shortest_distance(G, right)))
+    vfilt_right_0 = list(np.where(phases == 0)[0])
+    vfilt_right_1 = list(np.where(phases == 1)[0])
+
+    return (
+        np.mean(dt[vfilt_top_0]),
+        np.mean(dt[vfilt_top_1]),
+        np.mean(db[vfilt_bottom_0]),
+        np.mean(db[vfilt_bottom_1]),
+        np.mean(dl[vfilt_left_0]),
+        np.mean(dl[vfilt_left_1]),
+        np.mean(dr[vfilt_right_0]),
+        np.mean(dr[vfilt_right_1]),
+    )
 
 
 def getGraspiDescriptors(data):
@@ -198,6 +269,20 @@ def getGraspiDescriptors(data):
         distance_to_interface_0,
         distance_to_interface_1,
     ] = shortest_distance_gt(g)
+    [left_0, right_0, top_0, bottom_0] = surface_area(g, data.shape, 0)
+    [left_1, right_1, top_1, bottom_1] = surface_area(g, data.shape, 1)
+
+    [
+        dist_top_0,
+        dist_top_1,
+        dist_bottom_0,
+        dist_bottom_1,
+        dist_left_0,
+        dist_left_1,
+        dist_right_0,
+        dist_right_1,
+    ] = surface_shortest_distances(g, data.shape)
+
     return dict(
         phase_0_count=count_of_vertices_gt(g, 0),
         phase_1_count=count_of_vertices_gt(g, 1),
@@ -209,4 +294,16 @@ def getGraspiDescriptors(data):
         distance_to_interface=distance_to_interface,
         distance_to_interface_0=distance_to_interface_0,
         distance_to_interface_1=distance_to_interface_1,
+        top_boundary_count_0=top_0,
+        top_boundary_count_1=top_1,
+        bottom_boundary_count_0=bottom_0,
+        bottom_boundary_count_1=bottom_1,
+        distance_to_top_0=dist_top_0,
+        distance_to_top_1=dist_top_1,
+        distance_to_bottom_0=dist_bottom_0,
+        distance_to_bottom_1=dist_bottom_1,
+        distance_to_left_0=dist_left_0,
+        distance_to_left_1=dist_left_1,
+        distance_to_right_0=dist_right_0,
+        distance_to_right_1=dist_right_1,
     )
