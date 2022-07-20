@@ -17,6 +17,7 @@ def skeletonize(data):
     Args:
       data: a single microstructure of any dimension with only two
         phases
+
     Returns:
       returns a tuple with the skeletonized microstrucuture as the
       first element and the distance map as the second element.

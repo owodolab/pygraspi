@@ -2,16 +2,6 @@
 
 """
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
-
-def setup_args():
-    """Get the setup arguments not configured in setup.cfg"""
-    return dict(
-        packages=find_packages(),
-        data_files=["setup.cfg"],
-        version="0.1",
-    )
-
-
-setup(**setup_args())
+setup(**dict(data_files=["setup.cfg"]))
