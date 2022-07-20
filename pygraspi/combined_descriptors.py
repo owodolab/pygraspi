@@ -1,8 +1,7 @@
-"""Functions to calculatate descriptors
-
+"""The main PyGraSPI module with the public API
 """
+
 import pandas as pd
-import numpy as np
 from toolz.curried import map as fmap
 from toolz.curried import pipe
 
@@ -10,77 +9,28 @@ from .skeletal_descriptors import getSkeletalDescriptors
 from .graph_graphtool import getGraspiDescriptors
 
 
-def _make_skeletal_descriptors(data):
-    """Generate microstructure descriptors from the skeleton
-
-    Args:
-      data: the microstructure morphologies, (n_sample, n_x, n_y, ...)
-
-    Returns:
-      a pandas dataframe of samples by features
-
-    Test case
-
-    >>> data = np.array([
-    ...     [[0, 0, 0], [1, 1, 1], [0, 0, 0], [1, 0, 0], [1, 0, 1]],
-    ...     [[0, 1, 1], [1, 1, 1], [0, 0, 0], [1, 0, 0], [1, 0, 1]]
-    ... ])
-    >>> actual = _make_skeletal_descriptors(data)
-    >>> actual
-       branch_length_a  ...  number_of_intersections_b
-    0             2.00  ...                          0
-    1             2.41  ...                          0
-    <BLANKLINE>
-    [2 rows x 18 columns]
-
-    """
+def _map_to_dataframe(func, data):
     return pipe(
         data,
-        fmap(getSkeletalDescriptors),
-        list,
-        lambda x: pd.DataFrame(x, columns=sorted(x[0].keys())),
-    )
-
-
-def _make_graph_descriptors(data):
-    """Generate multiple microstructure descriptors using graphs
-
-    Args:
-      data: the microstructure morphologies, (n_sample, n_x, n_y, ...)
-
-    Returns:
-      a pandas dataframe of samples by features
-
-    Test case
-
-    """
-    return pipe(
-        data,
-        fmap(getGraspiDescriptors),
+        fmap(func),
         list,
         lambda x: pd.DataFrame(x, columns=sorted(x[0].keys())),
     )
 
 
 def make_descriptors(data):
-    """ "Generate microstructure descriptors
-
+    """Generate microstructure descriptors
     Args:
       data: the microstructure morphologies, (n_sample, n_x, n_y, ...)
-
     Returns:
       a pandas dataframe of samples by features
-
     The methods used here first represent the microstructures topology
     with a distance map, which is then used to derive a "skeleton"
     graph. The skeleton is then segmented to calculate quantities such
     as the number of branches, branch length or number of
     intersections.
-
     Currently this only works with two phase materials "a" and "b".
-
     The column descriptors are as follows.
-
     ========================= ===========
     Column Name               Description
     ========================= ===========
@@ -93,8 +43,8 @@ def make_descriptors(data):
     dist_to_interface_min_a   minimum distance to the interface from the skeleton in phase 0
     dist_to_interface_min_b   minimum distance to the interface from the skeleton in phase 1
     distance_to_interface     average of shortest distances to nearest interface from all pixels
-    distance_to_interface_0   average of shortest distances to the interface from phase 0
-    distance_to_interface_1   average of shortest distances to the interface from phase 1
+    distance_to_interface_0   average of shortest distances to nearest interface from all pixels in phase 0
+    distance_to_interface_1   average of shortest distances to nearest interface from all pixels in phase 1
     f_skeletal_pixels_a       fraction of skeleton pixels in phase 0
     f_skeletal_pixels_b       fraction of skeleton pixels in phase 1
     interfacial_area          number of pixels on the interface
@@ -111,9 +61,25 @@ def make_descriptors(data):
     phase_1_count             number of pixels in phase 1
     phase_1_interface         number of pixels on the interface in phase 1
     ========================= ===========
-    """
+    Test case
+    >>> import numpy as np
+    >>> data = np.array([
+    ...     [[0, 0, 0], [1, 1, 1], [0, 0, 0], [1, 0, 0], [1, 0, 1]],
+    ...     [[0, 1, 1], [1, 1, 1], [0, 0, 0], [1, 0, 0], [1, 0, 1]]
+    ... ])
+    >>> actual = make_descriptors(data)
+    >>> actual
+       branch_length_a  branch_length_b  ...  top_boundary_count_0  top_boundary_count_1
+    0             2.00             2.91  ...                     3                     0
+    1             2.41             3.83  ...                     1                     2
+    <BLANKLINE>
+    [2 rows x 40 columns]
+    """  # pylint: disable=line-too-long
     return pd.concat(
-        [_make_skeletal_descriptors(data), _make_graph_descriptors(data)],
+        [
+            _map_to_dataframe(getSkeletalDescriptors, data),
+            _map_to_dataframe(getGraspiDescriptors, data),
+        ],
         axis=1,
         join="inner",
     )

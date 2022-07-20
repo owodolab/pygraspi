@@ -1,24 +1,32 @@
+"""Computes the skeleton of the microstructures and subsequently
+calculates skeleton-based descriptors.
+"""
+
 import numpy as np
 import networkx as nx
-import doctest
 from skimage.morphology import medial_axis, skeletonize
 import sknw
 
 
-def skeletonize(morph):
-    """
+def skeletonize(data):
+    """Generates the skeleton for a microstructure
+    Args:
+      data: a single microstructure of any dimension with only two
+        phases
+    Returns:
+      the skeletonized microstructure (a Boolean array) where True is
+      the skeleton
+    Test case
     >>> data = np.array([[1,1,1],\
                 [1,1,1],\
                 [1,1,1]])
     >>> skeleton = skeletonize(data)[0]
-    >>> assert np.allclose(skeleton, [[False, False,  True], [False, False,  True], [True,  True, False]])
+    >>> assert np.allclose(
+    ...     skeleton,
+    ...     [[False, False,  True], [False, False,  True], [True,  True, False]]
+    ... )
     """
-    skel, distance = medial_axis(morph, return_distance=True)
-    return skel, distance
-
-
-def skeletal_len(skeleton):
-    return np.count_nonzero(skeleton)
+    return medial_axis(data, return_distance=True)
 
 
 def f_skeletal_pixels(skeleton):
@@ -27,10 +35,10 @@ def f_skeletal_pixels(skeleton):
                 [1,1,1],\
                 [1,1,1]])
     >>> skeleton = skeletonize(data)[0]
-    >>> assert(f_skeletal_pixels(skeleton) == 0.44)
+    >>> assert(round(f_skeletal_pixels(skeleton),2) == 0.44)
     """
     count = np.count_nonzero(skeleton)
-    return round(count / skeleton.size, 2)
+    return count / skeleton.size
 
 
 def getSkeletalGraph(skeleton):
