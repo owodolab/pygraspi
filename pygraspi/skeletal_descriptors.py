@@ -1,17 +1,11 @@
 """Computes the skeleton of the microstructures and subsequently
 calculates skeleton-based descriptors.
-
 """
 
 import numpy as np
-import doctest
+import networkx as nx
 from skimage.morphology import medial_axis
 import sknw
-
-
-# def neighborhood(nx, ny):
-#     vertex_list = np.array(range(nx * ny))
-#     return np.zeros([vertex_list.shape[0], 8])
 
 
 def skeletonize(data):
@@ -46,10 +40,10 @@ def f_skeletal_pixels(skeleton):
                 [1,1,1],\
                 [1,1,1]])
     >>> skeleton = skeletonize(data)[0]
-    >>> assert(f_skeletal_pixels(skeleton) == 0.44)
+    >>> assert(round(f_skeletal_pixels(skeleton),2) == 0.44)
     """
     count = np.count_nonzero(skeleton)
-    return round(count / skeleton.size, 2)
+    return count / skeleton.size
 
 
 def getSkeletalGraph(skeleton):
@@ -84,7 +78,20 @@ def getBranchLen(graph):
 
 
 def number_of_cycles(graph):
-    return None
+    """
+    >>> data = np.array([[1,1,1],\
+                [1,1,1],\
+                [1,1,1]])
+    >>> skeleton = skeletonize(data)[0]
+    >>> graph = getSkeletalGraph(skeleton)
+    >>> assert np.allclose(number_of_cycles(graph), [0, 0])
+    """
+    cycles = 0
+    for cc in sorted(nx.connected_components(graph), key=len, reverse=True):
+        if len(cc) > 2:
+            sgraph = graph.subgraph(cc)
+            cycles += max((sgraph.number_of_edges() - sgraph.number_of_nodes()) + 1, 0)
+    return cycles
 
 
 def getSkeletalDescriptors(data):
@@ -122,4 +129,6 @@ def getSkeletalDescriptors(data):
         dist_to_interface_max_b=max(d_b),
         dist_to_interface_avg_a=round(sum(d_a) / len(d_a), 2),
         dist_to_interface_avg_b=round(sum(d_b) / len(d_b), 2),
+        number_of_cycles_a=number_of_cycles(graph_a),
+        number_of_cycles_b=number_of_cycles(graph_b),
     )

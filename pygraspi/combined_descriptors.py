@@ -23,20 +23,15 @@ def make_descriptors(data):
 
     Args:
       data: the microstructure morphologies, (n_sample, n_x, n_y, ...)
-
     Returns:
       a pandas dataframe of samples by features
-
     The methods used here first represent the microstructures topology
     with a distance map, which is then used to derive a "skeleton"
     graph. The skeleton is then segmented to calculate quantities such
     as the number of branches, branch length or number of
     intersections.
-
     Currently this only works with two phase materials "a" and "b".
-
     The column descriptors are as follows.
-
     ========================= ===========
     Column Name               Description
     ========================= ===========
@@ -77,14 +72,11 @@ def make_descriptors(data):
     ... ])
     >>> actual = make_descriptors(data)
     >>> actual
-       branch_length_a  branch_length_b  ...  phase_1_count  phase_1_interface
-    0             2.00             2.91  ...              6                  6
-    1             2.41             3.83  ...              8                  7
+       branch_length_a  branch_length_b  ...  top_boundary_count_0  top_boundary_count_1
+    0             2.00             2.91  ...                     3                     0
+    1             2.41             3.83  ...                     1                     2
     <BLANKLINE>
-    [2 rows x 26 columns]
-
-
-
+    [2 rows x 40 columns]
     """  # pylint: disable=line-too-long
     return pd.concat(
         [
