@@ -4,19 +4,23 @@ calculates skeleton-based descriptors.
 
 import numpy as np
 import networkx as nx
-from skimage.morphology import medial_axis, skeletonize
+from skimage.morphology import medial_axis
 import sknw
 
 
 def skeletonize(data):
     """Generates the skeleton for a microstructure
+
     Args:
       data: a single microstructure of any dimension with only two
         phases
+
     Returns:
       the skeletonized microstructure (a Boolean array) where True is
       the skeleton
+
     Test case
+
     >>> data = np.array([[1,1,1],\
                 [1,1,1],\
                 [1,1,1]])
@@ -25,6 +29,7 @@ def skeletonize(data):
     ...     skeleton,
     ...     [[False, False,  True], [False, False,  True], [True,  True, False]]
     ... )
+
     """
     return medial_axis(data, return_distance=True)
 

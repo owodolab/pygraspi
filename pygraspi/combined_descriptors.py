@@ -20,6 +20,7 @@ def _map_to_dataframe(func, data):
 
 def make_descriptors(data):
     """Generate microstructure descriptors
+
     Args:
       data: the microstructure morphologies, (n_sample, n_x, n_y, ...)
     Returns:
@@ -61,7 +62,9 @@ def make_descriptors(data):
     phase_1_count             number of pixels in phase 1
     phase_1_interface         number of pixels on the interface in phase 1
     ========================= ===========
+
     Test case
+
     >>> import numpy as np
     >>> data = np.array([
     ...     [[0, 0, 0], [1, 1, 1], [0, 0, 0], [1, 0, 0], [1, 0, 1]],
