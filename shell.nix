@@ -24,6 +24,7 @@ let
        rev = "release_${version}";
       sha256 = "sha256-OayULh/dGI5sEynYMc+JLwUd67zEGdIGEKo6CTOdZS8=";
     };
+    meta = old.meta // { broken = false; };
   });
 
   # pymks
