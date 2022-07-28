@@ -9,24 +9,42 @@ import sknw
 
 
 def skeletonize(data):
-    """Generates the skeleton for a microstructure
+    """Generates the skeleton and distance map for a microstructure
+
+    Generates both the skeleton and the distance map for a
+    microstructure.
 
     Args:
       data: a single microstructure of any dimension with only two
         phases
 
     Returns:
-      the skeletonized microstructure (a Boolean array) where True is
-      the skeleton
+      returns a tuple with the skeletonized microstrucuture as the
+      first element and the distance map as the second element.
 
-    Test case
+    This test case represents a microstructure shaped as a cross with
+    a width of 3 pixels. The skeleton is one pixel down the center of
+    the cross. Note that the central element is False as connections
+    in the skeleton are achieved via diagonal connections.
 
-    >>> data = np.array([[1,1,1],\
-                [1,1,1],\
-                [1,1,1]])
-    >>> skeleton = skeletonize(data)[0]
+    >>> data = np.zeros((9, 9))
+    >>> data[3:6] = 1
+    >>> data[:, 3:6] = 1
+    >>> actual = skeletonize(data)[0]
+    >>> expected = np.zeros((9, 9), dtype=bool)
+    >>> expected[4] = True
+    >>> expected[:, 4] = True
+    >>> expected[4, 4] = False
+    >>> assert np.allclose(actual, expected)
+
+    Test case for a single phase domain. There is no good way to
+    determine the skeleton in this case and, thus, the outcome is
+    largely arbitrary (but deterministic).
+
+    >>> data = np.ones((3, 3))
+    >>> actual = skeletonize(data)[0]
     >>> assert np.allclose(
-    ...     skeleton,
+    ...     actual,
     ...     [[False, False,  True], [False, False,  True], [True,  True, False]]
     ... )
 
